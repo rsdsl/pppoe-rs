@@ -6,6 +6,7 @@ use core::{convert::TryFrom, u16};
 use crate::error::ParseError;
 use crate::{tag, Tag, TagIterator};
 
+pub const PPP: u8 = 0x00;
 pub const PADI: u8 = 0x09;
 pub const PADO: u8 = 0x07;
 pub const PADR: u8 = 0x19;
@@ -15,6 +16,7 @@ pub const PADT: u8 = 0xa7;
 #[repr(u8)]
 #[derive(PartialEq, Eq, Copy, Clone)]
 pub enum Code {
+    Ppp = PPP,
     Padi = PADI,
     Pado = PADO,
     Padr = PADR,
@@ -25,6 +27,7 @@ pub enum Code {
 impl Code {
     fn try_from(code: u8) -> Result<Self, ParseError> {
         Ok(match code {
+            PPP => Code::Ppp,
             PADI => Code::Padi,
             PADO => Code::Pado,
             PADR => Code::Padr,
@@ -86,6 +89,9 @@ impl<'a> Header<'a> {
 
         Ok(Header(buffer))
     }
+
+    pub fn ppp_with_buffer(buffer: &'a [u8]) -> Result<Self, ParseError> {
+        Self::with_buffer_and_code(buffer, Some(Code::Ppp))
 
     pub fn padi_with_buffer(buffer: &'a [u8]) -> Result<Self, ParseError> {
         Self::with_buffer_and_code(buffer, Some(Code::Padi))
@@ -283,6 +289,10 @@ impl<'a> HeaderBuilder<'a> {
         NE::write_u16(&mut buffer[4..], 0);
 
         Ok(HeaderBuilder(buffer))
+    }
+
+    pub fn create_ppp(buffer: &'a mut [u8], session_id: NonZeroU16) -> Result<Self, ParseError> {
+        Self::create_packet(buffer, Code::Ppp, session_id)
     }
 
     pub fn create_padi(buffer: &'a mut [u8]) -> Result<Self, ParseError> {
