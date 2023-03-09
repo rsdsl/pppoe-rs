@@ -92,6 +92,7 @@ impl<'a> Header<'a> {
 
     pub fn ppp_with_buffer(buffer: &'a [u8]) -> Result<Self, ParseError> {
         Self::with_buffer_and_code(buffer, Some(Code::Ppp))
+    }
 
     pub fn padi_with_buffer(buffer: &'a [u8]) -> Result<Self, ParseError> {
         Self::with_buffer_and_code(buffer, Some(Code::Padi))
@@ -292,7 +293,7 @@ impl<'a> HeaderBuilder<'a> {
     }
 
     pub fn create_ppp(buffer: &'a mut [u8], session_id: NonZeroU16) -> Result<Self, ParseError> {
-        Self::create_packet(buffer, Code::Ppp, session_id)
+        Self::create_packet(buffer, Code::Ppp, session_id.into())
     }
 
     pub fn create_padi(buffer: &'a mut [u8]) -> Result<Self, ParseError> {
