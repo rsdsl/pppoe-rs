@@ -85,7 +85,10 @@ impl<'a> Header<'a> {
             return Err(ParseError::MissingServiceName);
         }
 
-        Self::validate_tags(&buffer[6..6 + length])?;
+        match code {
+            Code::Ppp => {}
+            _ => Self::validate_tags(&buffer[6..6 + length])?,
+        }
 
         Ok(Header(buffer))
     }
