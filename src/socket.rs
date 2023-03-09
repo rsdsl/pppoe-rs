@@ -1,5 +1,7 @@
+use crate::packet::{PPPOE_DISCOVERY, PPPOE_SESSION};
 use pppoe_sys::{control, pppoe};
 
+use std::convert::TryInto;
 use std::io::{self, Read, Write};
 use std::os::unix::io::{FromRawFd, RawFd};
 use std::{fs, mem, num};
@@ -77,10 +79,16 @@ impl Socket {
     }
 
     pub fn recv(&self, buffer: &mut [u8]) -> io::Result<usize> {
-        let mut fd = unsafe { fs::File::from_raw_fd(self.raw_socket()) };
-        let ret = fd.read(buffer);
-        mem::forget(fd);
-        ret
+        loop {
+            let mut fd = unsafe { fs::File::from_raw_fd(self.raw_socket()) };
+            let ret = fd.read(buffer);
+            mem::forget(fd);
+
+            let ether_type = u16::from_be_bytes(buffer[12..14].try_into().unwrap());
+            if ether_type == PPPOE_DISCOVERY || ether_type == PPPOE_SESSION {
+                return ret;
+            }
+        }
     }
 
     pub fn close(&mut self) {
