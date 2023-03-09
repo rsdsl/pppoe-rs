@@ -137,7 +137,7 @@ int pppoe_raw_socket_create(struct PppoeConnectionData *const data) {
 	assert(NULL != data);
 	int optval = 1;
 
-	if ((data->raw_socket = socket(AF_PACKET, SOCK_RAW, htons(ETH_PPPOE_DISCOVERY))) < 0)
+	if ((data->raw_socket = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0)
 		return -1;
 
 	if (setsockopt(data->raw_socket, SOL_SOCKET, SO_BROADCAST, &optval, sizeof(optval)) < 0)
@@ -158,7 +158,7 @@ int pppoe_raw_socket_bind(struct PppoeConnectionData const *const data) {
 	struct sockaddr_ll sa;
 
 	sa.sll_family = AF_PACKET;
-	sa.sll_protocol = htons(ETH_PPPOE_DISCOVERY);
+	sa.sll_protocol = htons(ETH_P_ALL);
 
 	if ((sa.sll_ifindex = get_interface_index_from_name(data)) < 0)
 		return -1;
