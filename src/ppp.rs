@@ -41,7 +41,7 @@ pub struct Header<'a>(&'a [u8]);
 impl<'a> Header<'a> {
     pub fn with_buffer(buffer: &'a [u8]) -> Result<Self, ParseError> {
         ensure_minimal_buffer_length(buffer)?;
-        if buffer[0] & 0x01 != 0 || buffer[1] & 0x80 != 0x80 {
+        if buffer[0] & 0x01 != 0x00 || buffer[1] & 0x01 != 0x01 {
             let protocol = NE::read_u16(&buffer[..2]);
             return Err(ParseError::InvalidPppProtocol(protocol));
         }
