@@ -378,6 +378,12 @@ pub struct ConfigOptionIterator<'a> {
     payload: &'a [u8],
 }
 
+impl<'a> ConfigOptionIterator<'a> {
+    pub fn new(payload: &'a [u8]) -> Self {
+        ConfigOptionIterator { payload }
+    }
+}
+
 impl<'a> Iterator for ConfigOptionIterator<'a> {
     type Item = ConfigOption<'a>;
 
