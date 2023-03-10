@@ -2,6 +2,7 @@ use byteorder::{ByteOrder, NetworkEndian as NE};
 
 use std::convert::TryFrom;
 
+use crate::auth;
 use crate::error::ParseError;
 
 pub const CONFIGURE_REQUEST: u8 = 1;
@@ -275,5 +276,92 @@ impl<'a> HeaderBuilder<'a> {
 
     pub fn build(self) -> Result<Header<'a>, ParseError> {
         Header::with_buffer(self.0)
+    }
+}
+
+fn ensure_minimal_option_length(buffer: &[u8]) -> Result<(), ParseError> {
+    if buffer.len() < 2 {
+        return Err(ParseError::BufferTooSmall(buffer.len()));
+    }
+    Ok(())
+}
+
+pub const MRU: u8 = 1;
+pub const AUTH_PROTOCOL: u8 = 3;
+pub const QUALITY_PROTOCOL: u8 = 4;
+pub const MAGIC_NUMBER: u8 = 5;
+pub const PFC: u8 = 7;
+pub const ACFC: u8 = 8;
+
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum ConfigOption<'a> {
+    Mru(u16),
+    AuthProtocol(auth::Protocol),
+    QualityProtocol(&'a [u8]),
+    MagicNumber(u32),
+    Pfc,
+    Acfc,
+}
+
+impl<'a> TryFrom<&'a [u8]> for ConfigOption<'a> {
+    type Error = ParseError;
+    fn try_from(option: &'a [u8]) -> Result<ConfigOption<'a>, ParseError> {
+        ensure_minimal_option_length(option)?;
+
+        match option[0] {
+            MRU => {
+                // constant length
+                if option[1] != 4 {
+                    return Err(ParseError::InvalidOptionLength(option[1]));
+                }
+
+                Ok(ConfigOption::Mru(NE::read_u16(&option[2..4])))
+            }
+            AUTH_PROTOCOL => {
+                if option[1] < 4 {
+                    return Err(ParseError::InvalidOptionLength(option[1]));
+                }
+
+                let auth_protocol = auth::Protocol::try_from(&option[2..])?;
+                Ok(ConfigOption::AuthProtocol(auth_protocol))
+            }
+            QUALITY_PROTOCOL => {
+                if option[1] < 4 {
+                    return Err(ParseError::InvalidOptionLength(option[1]));
+                }
+
+                let quality_protocol = NE::read_u16(&option[2..4]);
+                if quality_protocol != 0xc025 {
+                    return Err(ParseError::InvalidQualityProtocol(quality_protocol));
+                }
+
+                Ok(ConfigOption::QualityProtocol(&option[4..]))
+            }
+            MAGIC_NUMBER => {
+                // constant length
+                if option[1] != 6 {
+                    return Err(ParseError::InvalidOptionLength(option[1]));
+                }
+
+                Ok(ConfigOption::MagicNumber(NE::read_u32(&option[2..6])))
+            }
+            PFC => {
+                // constant length
+                if option[1] != 2 {
+                    return Err(ParseError::InvalidOptionLength(option[1]));
+                }
+
+                Ok(ConfigOption::Pfc)
+            }
+            ACFC => {
+                // constant length
+                if option[1] != 2 {
+                    return Err(ParseError::InvalidOptionLength(option[1]));
+                }
+
+                Ok(ConfigOption::Acfc)
+            }
+            _ => Err(ParseError::InvalidOptionType(option[0])),
+        }
     }
 }

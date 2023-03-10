@@ -66,6 +66,13 @@ pub enum ParseError {
     InvalidPppProtocol(u16),
 
     InvalidLcpCode(u8),
+
+    InvalidOptionType(u8),
+    InvalidOptionLength(u8),
+
+    InvalidQualityProtocol(u16),
+
+    InvalidAuthProtocol(u16),
 }
 
 #[derive(Debug)]
