@@ -1,5 +1,7 @@
 use byteorder::{ByteOrder, NetworkEndian as NE};
 
+use std::convert::TryFrom;
+
 use crate::error::ParseError;
 
 pub const LCP: u16 = 0xc021;
@@ -12,6 +14,18 @@ pub enum Protocol {
     Lcp = LCP,
     Pap = PAP,
     Chap = CHAP,
+}
+
+impl TryFrom<u16> for Protocol {
+    type Error = ParseError;
+    fn try_from(protocol: u16) -> Result<Self, ParseError> {
+        Ok(match protocol {
+            LCP => Protocol::Lcp,
+            PAP => Protocol::Pap,
+            CHAP => Protocol::Chap,
+            _ => return Err(ParseError::InvalidPppProtocol(protocol)),
+        })
+    }
 }
 
 fn ensure_minimal_buffer_length(buffer: &[u8]) -> Result<(), ParseError> {
