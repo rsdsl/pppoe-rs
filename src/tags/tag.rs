@@ -126,10 +126,7 @@ impl<'a> Tag<'a> {
             // TODO: parsing this is more complex, check RFC for fields
             TAG_METRICS => Tag::Metrics(&buffer[4..length]),
             // everything else
-            _ => Tag::Unknown((
-                num::NonZeroU16::new(tag as u16).unwrap(),
-                &buffer[4..length],
-            )),
+            _ => Tag::Unknown((num::NonZeroU16::new(tag).unwrap(), &buffer[4..length])),
         };
 
         Ok((tag_enum, &buffer[length..]))

@@ -118,11 +118,11 @@ impl<'a> Header<'a> {
     }
 
     pub fn as_bytes(&self) -> &[u8] {
-        &self.0
+        self.0
     }
 
     pub fn get_ref(&self) -> &[u8] {
-        &self.0
+        self.0
     }
 
     fn check_duplicate(tag: u16, exists: &mut bool) -> Result<(), ParseError> {
@@ -401,7 +401,7 @@ impl<'a> HeaderBuilder<'a> {
     }
 
     pub fn get_ref_mut(&mut self) -> &mut [u8] {
-        &mut self.0
+        self.0
     }
 
     pub fn build(self) -> Result<Header<'a>, ParseError> {
@@ -446,7 +446,7 @@ mod tests {
     }
 
     fn expect_parse_error(buffer: &[u8]) -> ParseError {
-        let should_be_error = Header::with_buffer(&buffer[..]);
+        let should_be_error = Header::with_buffer(buffer);
         assert!(should_be_error.is_err());
         should_be_error.unwrap_err()
     }

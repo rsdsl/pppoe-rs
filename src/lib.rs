@@ -19,7 +19,6 @@ pub use tags::*;
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     #[cfg(feature = "tr101")]
     #[test]
     fn send_packet() {

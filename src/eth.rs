@@ -35,7 +35,7 @@ impl<'a> Header<'a> {
 
     /// get the full ethernet header as bytes
     pub fn as_bytes(&self) -> &[u8] {
-        &self.0
+        self.0
     }
 }
 
@@ -68,14 +68,14 @@ impl<'a> HeaderBuilder<'a> {
 
     /// get the full ethernet header as bytes
     pub fn as_bytes(&self) -> &[u8] {
-        &self.0
+        self.0
     }
 
     /// get the full ethernet header as mutable bytes
     ///
     /// This should be rarely useful.
     pub fn as_mut_bytes(&mut self) -> &mut [u8] {
-        &mut self.0
+        self.0
     }
 
     /// Create a valid Ethernet Header
