@@ -11,6 +11,7 @@ pub use packet::{Packet, PacketBuilder};
 
 pub mod error;
 pub mod eth;
+pub mod lcp;
 pub mod ppp;
 
 mod tags;

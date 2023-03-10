@@ -64,6 +64,8 @@ pub enum ParseError {
     AcNameMismatch,
 
     InvalidPppProtocol(u16),
+
+    InvalidLcpCode(u8),
 }
 
 #[derive(Debug)]

@@ -13,6 +13,7 @@ pppoe-sys = { path = "pppoe-sys", optional = true }
 byteorder = { version = "1", default-features = false }
 
 mio = { version = "0.6", optional = true }
+rand = "0.8.5"
 
 [features]
 default = []
