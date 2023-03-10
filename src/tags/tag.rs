@@ -191,6 +191,7 @@ impl<'a> Tag<'a> {
     }
 
     pub fn write(&self, buffer: &mut [u8]) -> Result<usize, ParseError> {
+        #[allow(clippy::single_match)]
         match self {
             Tag::PppMaxMtu(mtu) => {
                 if buffer.len() < 6 {

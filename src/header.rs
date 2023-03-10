@@ -1,7 +1,7 @@
 use byteorder::{ByteOrder, NetworkEndian as NE};
 
 use core::num::NonZeroU16;
-use core::{convert::TryFrom, u16};
+use core::u16;
 
 use crate::error::ParseError;
 use crate::{tag, Tag, TagIterator};
@@ -218,7 +218,7 @@ impl<'a> Header<'a> {
         usize::from(6 + NE::read_u16(&self.0[4..]))
     }
 
-    pub fn is_empty(&mut self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.len() == 6
     }
 
@@ -248,7 +248,7 @@ impl<'a> HeaderBuilder<'a> {
         usize::from(6 + NE::read_u16(&self.0[4..]))
     }
 
-    pub fn is_empty(&mut self) -> bool {
+    pub fn is_empty(&self) -> bool {
         self.len() == 6
     }
 
