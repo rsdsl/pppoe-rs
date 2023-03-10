@@ -62,6 +62,8 @@ pub enum ParseError {
 
     ServiceNameMismatch,
     AcNameMismatch,
+
+    InvalidPppProtocol(u16),
 }
 
 #[derive(Debug)]
