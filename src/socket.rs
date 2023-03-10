@@ -24,7 +24,7 @@ where
         return Err(io::Error::last_os_error());
     }
 
-    return Ok(());
+    Ok(())
 }
 
 fn set_nonblock(fd: libc::c_int) -> io::Result<()> {

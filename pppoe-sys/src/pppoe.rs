@@ -1,5 +1,7 @@
 #![allow(non_snake_case)]
 #![allow(non_camel_case_types)]
+#![allow(non_upper_case_globals)]
+#![allow(unused)]
 mod internal {
     include!(concat!(env!("OUT_DIR"), "/pppoe_bindings.rs"));
 }
@@ -60,10 +62,8 @@ pub fn connection_data_init(
     connection: &mut Connection,
     interface_name: Option<String>,
 ) -> io::Result<()> {
-    let interface_name = match interface_name {
-        Some(interface_name) => CString::new(interface_name).unwrap().as_ptr(),
-        None => ptr::null(),
-    };
+    let interface_name = interface_name.map(|v| CString::new(v).unwrap());
+    let interface_name = interface_name.map(|v| v.as_ptr()).unwrap_or(ptr::null());
 
     let ret = unsafe {
         internal::pppoe_connection_data_init(&mut connection.0 as *mut _, interface_name)

@@ -2,7 +2,7 @@ use std::env;
 use std::path::PathBuf;
 
 fn main() {
-    cc::Build::new().file("pppoe/pppoe.c").compile("pppoe");
+    cc::Build::new().flag("-Wno-address-of-packed-member").file("pppoe/pppoe.c").compile("pppoe");
 
     for header in &["pppoe", "control"] {
         let bindings = bindgen::Builder::default()
