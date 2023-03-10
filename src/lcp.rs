@@ -303,27 +303,29 @@ pub enum ConfigOption<'a> {
     Acfc,
 }
 
-impl<'a> TryFrom<&'a [u8]> for ConfigOption<'a> {
-    type Error = ParseError;
-    fn try_from(option: &'a [u8]) -> Result<ConfigOption<'a>, ParseError> {
+impl<'a> ConfigOption<'a> {
+    fn from_buffer(option: &'a [u8]) -> Result<(ConfigOption<'a>, &'a [u8]), ParseError> {
         ensure_minimal_option_length(option)?;
 
-        match option[0] {
+        Ok(match option[0] {
             MRU => {
                 // constant length
                 if option[1] != 4 {
                     return Err(ParseError::InvalidOptionLength(option[1]));
                 }
 
-                Ok(ConfigOption::Mru(NE::read_u16(&option[2..4])))
+                (ConfigOption::Mru(NE::read_u16(&option[2..4])), &option[4..])
             }
             AUTH_PROTOCOL => {
                 if option[1] < 4 {
                     return Err(ParseError::InvalidOptionLength(option[1]));
                 }
 
-                let auth_protocol = auth::Protocol::try_from(&option[2..])?;
-                Ok(ConfigOption::AuthProtocol(auth_protocol))
+                let auth_protocol = auth::Protocol::try_from(&option[2..option[1] as usize])?;
+                (
+                    ConfigOption::AuthProtocol(auth_protocol),
+                    &option[option[1] as usize..],
+                )
             }
             QUALITY_PROTOCOL => {
                 if option[1] < 4 {
@@ -335,7 +337,10 @@ impl<'a> TryFrom<&'a [u8]> for ConfigOption<'a> {
                     return Err(ParseError::InvalidQualityProtocol(quality_protocol));
                 }
 
-                Ok(ConfigOption::QualityProtocol(&option[4..]))
+                (
+                    ConfigOption::QualityProtocol(&option[4..option[1] as usize]),
+                    &option[option[1] as usize..],
+                )
             }
             MAGIC_NUMBER => {
                 // constant length
@@ -343,7 +348,10 @@ impl<'a> TryFrom<&'a [u8]> for ConfigOption<'a> {
                     return Err(ParseError::InvalidOptionLength(option[1]));
                 }
 
-                Ok(ConfigOption::MagicNumber(NE::read_u32(&option[2..6])))
+                (
+                    ConfigOption::MagicNumber(NE::read_u32(&option[2..6])),
+                    &option[6..],
+                )
             }
             PFC => {
                 // constant length
@@ -351,7 +359,7 @@ impl<'a> TryFrom<&'a [u8]> for ConfigOption<'a> {
                     return Err(ParseError::InvalidOptionLength(option[1]));
                 }
 
-                Ok(ConfigOption::Pfc)
+                (ConfigOption::Pfc, &option[2..])
             }
             ACFC => {
                 // constant length
@@ -359,9 +367,27 @@ impl<'a> TryFrom<&'a [u8]> for ConfigOption<'a> {
                     return Err(ParseError::InvalidOptionLength(option[1]));
                 }
 
-                Ok(ConfigOption::Acfc)
+                (ConfigOption::Acfc, &option[2..])
             }
-            _ => Err(ParseError::InvalidOptionType(option[0])),
+            _ => return Err(ParseError::InvalidOptionType(option[0])),
+        })
+    }
+}
+
+pub struct ConfigOptionIterator<'a> {
+    payload: &'a [u8],
+}
+
+impl<'a> Iterator for ConfigOptionIterator<'a> {
+    type Item = ConfigOption<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.payload.is_empty() {
+            return None;
         }
+
+        let (opt, payload) = ConfigOption::from_buffer(self.payload).unwrap();
+        self.payload = payload;
+        Some(opt)
     }
 }
