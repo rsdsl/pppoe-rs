@@ -286,7 +286,11 @@ impl<'a> HeaderBuilder<'a> {
     ) -> Result<Self, ParseError> {
         ensure_minimal_buffer_length(buffer)?;
 
-        let length = buffer[6..].len() as u16;
+        let length = if code == Code::Ppp {
+            buffer[6..].len() as u16
+        } else {
+            0
+        };
 
         // set version and type
         buffer[0] = 0x11;
