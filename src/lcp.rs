@@ -385,6 +385,19 @@ impl<'a> ConfigOption<'a> {
         }
     }
 
+    fn len(&self) -> usize {
+        match *self {
+            ConfigOption::Mru(_) => 4,
+            ConfigOption::AuthProtocol(ref auth_protocol) => {
+                4 + auth_protocol.data().map(|v| v.len()).unwrap_or(0)
+            }
+            ConfigOption::QualityProtocol(data) => 4 + data.len(),
+            ConfigOption::MagicNumber(_) => 6,
+            ConfigOption::Pfc => 2,
+            ConfigOption::Acfc => 2,
+        }
+    }
+
     fn write_to_buffer(&self, buf: &mut [u8]) -> Result<usize, ParseError> {
         ensure_minimal_option_length(buf)?;
 
@@ -438,6 +451,18 @@ pub struct ConfigOptions<'a>(Vec<ConfigOption<'a>>);
 impl<'a> ConfigOptions<'a> {
     pub fn add_option(&mut self, option: ConfigOption<'a>) {
         self.0.push(option);
+    }
+
+    pub fn len(&self) -> usize {
+        self.0
+            .iter()
+            .map(|opt| opt.len())
+            .reduce(|acc, n| acc + n)
+            .unwrap()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.len() == 0
     }
 
     pub fn write_to_buffer(&self, buf: &mut [u8]) -> Result<usize, ParseError> {
