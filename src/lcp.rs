@@ -153,7 +153,7 @@ impl<'a> Header<'a> {
     }
 
     pub fn len(&self) -> usize {
-        usize::from(4 + NE::read_u16(&self.0[2..4]))
+        usize::from(NE::read_u16(&self.0[2..4]))
     }
 
     pub fn is_empty(&self) -> bool {
@@ -161,7 +161,7 @@ impl<'a> Header<'a> {
     }
 
     pub fn payload(&self) -> &[u8] {
-        &self.0[4..]
+        &self.0[4..self.len()]
     }
 }
 
@@ -177,7 +177,7 @@ impl<'a> HeaderBuilder<'a> {
     }
 
     pub fn len(&self) -> usize {
-        usize::from(4 + NE::read_u16(&self.0[2..4]))
+        usize::from(NE::read_u16(&self.0[2..4]))
     }
 
     pub fn is_empty(&self) -> bool {
@@ -185,7 +185,7 @@ impl<'a> HeaderBuilder<'a> {
     }
 
     pub fn payload(&self) -> &[u8] {
-        &self.0[4..]
+        &self.0[4..self.len()]
     }
 
     pub fn set_code(&mut self, code: Code) {
