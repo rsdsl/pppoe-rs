@@ -211,7 +211,7 @@ impl<'a> HeaderBuilder<'a> {
     ) -> Result<Self, ParseError> {
         ensure_minimal_buffer_length(buffer)?;
 
-        let length = buffer[4..].len() as u16;
+        let length = 4 + buffer[4..].len() as u16;
 
         buffer[0] = code as u8;
         buffer[1] = identifier;
