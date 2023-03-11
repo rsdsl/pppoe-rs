@@ -1,5 +1,6 @@
 use byteorder::{ByteOrder, NetworkEndian as NE};
 
+use std::cmp::min;
 use std::convert::TryFrom;
 
 use crate::auth;
@@ -296,7 +297,7 @@ pub const ACFC: u8 = 8;
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum ConfigOption<'a> {
     Mru(u16),
-    AuthProtocol(auth::Protocol),
+    AuthProtocol(auth::Protocol<'a>),
     QualityProtocol(&'a [u8]),
     MagicNumber(u32),
     Pfc,
@@ -321,7 +322,7 @@ impl<'a> ConfigOption<'a> {
                     return Err(ParseError::InvalidOptionLength(option[1]));
                 }
 
-                let auth_protocol = auth::Protocol::try_from(&option[2..option[1] as usize])?;
+                let auth_protocol = auth::Protocol::from_buffer(&option[2..option[1] as usize])?;
                 (
                     ConfigOption::AuthProtocol(auth_protocol),
                     &option[option[1] as usize..],
@@ -371,6 +372,81 @@ impl<'a> ConfigOption<'a> {
             }
             _ => return Err(ParseError::InvalidOptionType(option[0])),
         })
+    }
+
+    fn code(&self) -> u8 {
+        match self {
+            ConfigOption::Mru(_) => MRU,
+            ConfigOption::AuthProtocol(_) => AUTH_PROTOCOL,
+            ConfigOption::QualityProtocol(_) => QUALITY_PROTOCOL,
+            ConfigOption::MagicNumber(_) => MAGIC_NUMBER,
+            ConfigOption::Pfc => PFC,
+            ConfigOption::Acfc => ACFC,
+        }
+    }
+
+    fn write_to_buffer(&self, buf: &mut [u8]) -> Result<usize, ParseError> {
+        ensure_minimal_option_length(buf)?;
+
+        buf[0] = self.code();
+
+        match *self {
+            ConfigOption::Mru(mru) => {
+                // constant length
+                buf[1] = 4;
+                NE::write_u16(&mut buf[2..4], mru);
+            }
+            ConfigOption::AuthProtocol(ref auth_protocol) => {
+                buf[1] = 4 + auth_protocol.data().map(|v| v.len()).unwrap_or(0) as u8;
+                NE::write_u16(&mut buf[2..4], auth_protocol.protocol());
+
+                if let Some(data) = auth_protocol.data() {
+                    // todo: bounds check, returning BufferTooSmall error
+                    let limit = min(buf.len(), 4 + data.len());
+                    buf[4..limit].copy_from_slice(data);
+                }
+            }
+            ConfigOption::QualityProtocol(data) => {
+                buf[1] = 4 + data.len() as u8;
+                NE::write_u16(&mut buf[2..4], 0xc025);
+
+                let limit = min(buf.len(), 4 + data.len());
+                buf[4..limit].copy_from_slice(data);
+            }
+            ConfigOption::MagicNumber(magic) => {
+                // constant length
+                buf[1] = 6;
+                NE::write_u32(&mut buf[2..6], magic);
+            }
+            ConfigOption::Pfc => {
+                // constant length
+                buf[1] = 2;
+            }
+            ConfigOption::Acfc => {
+                // constant length
+                buf[1] = 2;
+            }
+        }
+
+        Ok(buf[1] as usize)
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct ConfigOptions<'a>(Vec<ConfigOption<'a>>);
+
+impl<'a> ConfigOptions<'a> {
+    pub fn add_option(&mut self, option: ConfigOption<'a>) {
+        self.0.push(option);
+    }
+
+    pub fn write_to_buffer(&self, buf: &mut [u8]) -> Result<(), ParseError> {
+        let mut start = 0;
+        for option in &self.0 {
+            start += option.write_to_buffer(&mut buf[start..])?;
+        }
+
+        Ok(())
     }
 }
 
