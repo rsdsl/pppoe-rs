@@ -286,11 +286,13 @@ impl<'a> HeaderBuilder<'a> {
     ) -> Result<Self, ParseError> {
         ensure_minimal_buffer_length(buffer)?;
 
+        let length = buffer[6..].len() as u16;
+
         // set version and type
         buffer[0] = 0x11;
         buffer[1] = code as u8;
         NE::write_u16(&mut buffer[2..], session_id);
-        NE::write_u16(&mut buffer[4..], 0);
+        NE::write_u16(&mut buffer[4..], length);
 
         Ok(HeaderBuilder(buffer))
     }
