@@ -440,13 +440,13 @@ impl<'a> ConfigOptions<'a> {
         self.0.push(option);
     }
 
-    pub fn write_to_buffer(&self, buf: &mut [u8]) -> Result<(), ParseError> {
-        let mut start = 0;
+    pub fn write_to_buffer(&self, buf: &mut [u8]) -> Result<usize, ParseError> {
+        let mut n = 0;
         for option in &self.0 {
-            start += option.write_to_buffer(&mut buf[start..])?;
+            n += option.write_to_buffer(&mut buf[n..])?;
         }
 
-        Ok(())
+        Ok(n)
     }
 }
 
