@@ -7,6 +7,7 @@ use crate::error::ParseError;
 pub const LCP: u16 = 0xc021;
 pub const PAP: u16 = 0xc023;
 pub const CHAP: u16 = 0xc223;
+pub const IPCP: u16 = 0x8021;
 
 #[repr(u16)]
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -14,6 +15,7 @@ pub enum Protocol {
     Lcp = LCP,
     Pap = PAP,
     Chap = CHAP,
+    Ipcp = IPCP,
 }
 
 impl TryFrom<u16> for Protocol {
@@ -23,6 +25,7 @@ impl TryFrom<u16> for Protocol {
             LCP => Protocol::Lcp,
             PAP => Protocol::Pap,
             CHAP => Protocol::Chap,
+            IPCP => Protocol::Ipcp,
             _ => return Err(ParseError::InvalidPppProtocol(protocol)),
         })
     }

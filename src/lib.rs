@@ -13,6 +13,7 @@ pub mod auth;
 pub mod chap;
 pub mod error;
 pub mod eth;
+pub mod ipcp;
 pub mod lcp;
 pub mod ppp;
 

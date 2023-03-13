@@ -75,6 +75,8 @@ pub enum ParseError {
     InvalidAuthProtocol(u16),
 
     InvalidChapCode(u8),
+
+    InvalidIpcpCode(u8),
 }
 
 #[derive(Debug)]
