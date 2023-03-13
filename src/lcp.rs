@@ -83,7 +83,7 @@ impl<'a> Header<'a> {
         }
 
         let length = usize::from(NE::read_u16(&buffer[2..4]));
-        if length + 4 > buffer.len() {
+        if length > buffer.len() {
             return Err(ParseError::PayloadLengthOutOfBound {
                 actual_packet_length: buffer.len() as u16,
                 payload_length: length as u16,
@@ -202,7 +202,7 @@ impl<'a> HeaderBuilder<'a> {
     }
 
     pub fn clear_payload(&mut self) {
-        unsafe { self.set_len(0) };
+        unsafe { self.set_len(4) };
     }
 
     pub fn create_packet(
