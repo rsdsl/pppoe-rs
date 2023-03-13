@@ -10,6 +10,7 @@ pub mod packet;
 pub use packet::{Packet, PacketBuilder};
 
 pub mod auth;
+pub mod chap;
 pub mod error;
 pub mod eth;
 pub mod lcp;
