@@ -113,10 +113,6 @@ impl<'a> Header<'a> {
     pub fn payload(&self) -> &[u8] {
         &self.0[4..self.len()]
     }
-
-    pub fn extra(&self) -> &[u8] {
-        &self.0[self.len() - 1..]
-    }
 }
 
 pub struct HeaderBuilder<'a>(&'a mut [u8]);
@@ -140,10 +136,6 @@ impl<'a> HeaderBuilder<'a> {
 
     pub fn payload(&self) -> &[u8] {
         &self.0[4..self.len()]
-    }
-
-    pub fn extra(&self) -> &[u8] {
-        &self.0[self.len() - 1..]
     }
 
     pub fn set_code(&mut self, code: Code) {
