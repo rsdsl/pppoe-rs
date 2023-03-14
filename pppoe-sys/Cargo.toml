@@ -1,7 +1,7 @@
 [package]
 name = "pppoe-sys"
 version = "0.1.0"
-authors = ["Istvan Ruzman <istvan@ruzman.eu>"]
+authors = ["Istvan Ruzman <istvan@ruzman.eu>", "HimbeerserverDE <himbeerserverde@gmail.com>"]
 edition = "2018"
 license = "Apache-2.0 OR MIT"
 
