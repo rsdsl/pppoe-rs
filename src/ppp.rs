@@ -8,6 +8,7 @@ pub const LCP: u16 = 0xc021;
 pub const PAP: u16 = 0xc023;
 pub const CHAP: u16 = 0xc223;
 pub const IPCP: u16 = 0x8021;
+pub const IPV4: u16 = 0x0021;
 
 #[repr(u16)]
 #[derive(PartialEq, Eq, Copy, Clone)]
@@ -16,6 +17,7 @@ pub enum Protocol {
     Pap = PAP,
     Chap = CHAP,
     Ipcp = IPCP,
+    Ipv4 = IPV4,
 }
 
 impl TryFrom<u16> for Protocol {
@@ -26,6 +28,7 @@ impl TryFrom<u16> for Protocol {
             PAP => Protocol::Pap,
             CHAP => Protocol::Chap,
             IPCP => Protocol::Ipcp,
+            IPV4 => Protocol::Ipv4,
             _ => return Err(ParseError::InvalidPppProtocol(protocol)),
         })
     }
