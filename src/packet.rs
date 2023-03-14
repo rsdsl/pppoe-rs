@@ -5,6 +5,7 @@ use std::slice;
 
 pub const PPPOE_DISCOVERY: u16 = 0x8863;
 pub const PPPOE_SESSION: u16 = 0x8864;
+pub const IPV4: u16 = 0x0800;
 
 fn ensure_minimal_buffer_size(buffer: &[u8]) -> Result<(), ParseError> {
     // minimal eth + pppoe header size
