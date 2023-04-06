@@ -230,7 +230,7 @@ impl<'a> HeaderBuilder<'a> {
     }
 
     pub fn create_configure_nak(buffer: &'a mut [u8], identifier: u8) -> Result<Self, ParseError> {
-        Self::create_packet(buffer, Code::ConfigureAck, identifier)
+        Self::create_packet(buffer, Code::ConfigureNak, identifier)
     }
 
     pub fn create_configure_reject(
