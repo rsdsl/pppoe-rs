@@ -6,7 +6,14 @@ use crate::error::ParseError;
 
 pub const LCP: u16 = 0xc021;
 pub const PAP: u16 = 0xc023;
+pub const SHIVA_PAP: u16 = 0xc027;
+pub const VSAP: u16 = 0xc05b;
 pub const CHAP: u16 = 0xc223;
+pub const RSAAP: u16 = 0xc225;
+pub const EAP: u16 = 0xc227;
+pub const PROPAP1: u16 = 0xc281;
+pub const PROPAP2: u16 = 0xc283;
+pub const PNIDAP: u16 = 0xc481;
 pub const IPCP: u16 = 0x8021;
 pub const IPV4: u16 = 0x0021;
 
@@ -15,7 +22,14 @@ pub const IPV4: u16 = 0x0021;
 pub enum Protocol {
     Lcp = LCP,
     Pap = PAP,
+    ShivaPap = SHIVA_PAP,
+    Vsap = VSAP,
     Chap = CHAP,
+    RsaAp = RSAAP,
+    Eap = EAP,
+    PropAp1 = PROPAP1,
+    PropAp2 = PROPAP2,
+    PNIdAp = PNIDAP,
     Ipcp = IPCP,
     Ipv4 = IPV4,
 }
@@ -26,7 +40,14 @@ impl TryFrom<u16> for Protocol {
         Ok(match protocol {
             LCP => Protocol::Lcp,
             PAP => Protocol::Pap,
+            SHIVA_PAP => Protocol::ShivaPap,
+            VSAP => Protocol::Vsap,
             CHAP => Protocol::Chap,
+            RSAAP => Protocol::RsaAp,
+            EAP => Protocol::Eap,
+            PROPAP1 => Protocol::PropAp1,
+            PROPAP2 => Protocol::PropAp2,
+            PNIDAP => Protocol::PNIdAp,
             IPCP => Protocol::Ipcp,
             IPV4 => Protocol::Ipv4,
             _ => return Err(ParseError::InvalidPppProtocol(protocol)),
