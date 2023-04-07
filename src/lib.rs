@@ -15,6 +15,7 @@ pub mod error;
 pub mod eth;
 pub mod ipcp;
 pub mod lcp;
+pub mod pap;
 pub mod ppp;
 
 mod tags;
