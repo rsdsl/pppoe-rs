@@ -31,7 +31,7 @@ impl Connection {
         }
 
         self.0.interface_name[..interface_name.len()]
-            .copy_from_slice(unsafe { &*(interface_name.as_bytes() as *const _ as *const [i8]) });
+            .copy_from_slice(unsafe { mem::transmute(interface_name.as_bytes() as *const _) });
         get_hardware_address(self)?;
         Ok(())
     }
